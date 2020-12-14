@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.DatabaseActivity">
+
+    <Button
+        android:id="@+id/button_create_database"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="create database"
+        />
+
+    <Button
+        android:id="@+id/button_add_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add data"
+        />
+
+    <Button
+        android:id="@+id/button_update_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="update data"/>
+
+    <Button
+        android:id="@+id/button_delete_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="delete data"/>
+
+    <Button
+        android:id="@+id/button_query_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="query data"/>
+
+    <Button
+        android:id="@+id/button_operate_file"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="log file directory"/>
+
+    <Button
+        android:id="@+id/button_read_contacts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="read contacts"/>
+
+    <Button
+        android:id="@+id/button_open_web_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="open webview"/>
+
+
+</LinearLayout>
