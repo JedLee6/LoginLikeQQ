@@ -55,7 +55,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class LoginActivity extends BaseActivity {
 
@@ -288,7 +290,26 @@ public class LoginActivity extends BaseActivity {
 
                 localBroadcastManager.sendBroadcast(new Intent("local_broadcast"));
 
-                SharedPreferences.Editor sharedPreferencesEditor = getSharedPreferences("data2", MODE_PRIVATE).edit();
+                SharedPreferences.Editor sharedPreferencesEditor = getSharedPreferences("book", MODE_PRIVATE).edit();
+                sharedPreferencesEditor.putBoolean("domestic", false);
+                sharedPreferencesEditor.putFloat("width", 17.6F);
+                sharedPreferencesEditor.putLong("height", 24);
+                Set<String> stringSet=new HashSet<>();
+                stringSet.add("novel");
+                stringSet.add("romance");
+                sharedPreferencesEditor.putStringSet("tag",stringSet);
+                sharedPreferencesEditor.putString("name", "Gone with the wind");
+                sharedPreferencesEditor.putInt("thickness", 5);
+                sharedPreferencesEditor.apply();
+
+                sharedPreferencesEditor = getSharedPreferences("user", MODE_PRIVATE).edit();
+                sharedPreferencesEditor.putBoolean("male", true);
+                sharedPreferencesEditor.putFloat("height", 170.6F);
+                sharedPreferencesEditor.putLong("weight", 60);
+                stringSet=new HashSet<>();
+                stringSet.add("hello");
+                stringSet.add("world");
+                sharedPreferencesEditor.putStringSet("alias",stringSet);
                 sharedPreferencesEditor.putString("name", "Tom");
                 sharedPreferencesEditor.putInt("age", 28);
                 sharedPreferencesEditor.apply();
@@ -317,6 +338,9 @@ public class LoginActivity extends BaseActivity {
         mchangeTermsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //打开RecyclerViewActivity
+                startActivity(new Intent(LoginActivity.this, FoldableRecyclerViewActivity.class));
+
                 //开启服务的运行
                 //startService(new Intent(LoginActivity.this, UninteractiveService.class));
                 //绑定service

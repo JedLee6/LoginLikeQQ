@@ -19,14 +19,18 @@ android {
 }
 
 dependencies {
+    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4'
 
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
 
+    //noinspection GradleCompatible
     implementation 'com.android.support:recyclerview-v7:28.0.0'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     //implementation 'androidx.appcompat:appcompat:1.2.0'
     //implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     testImplementation 'junit:junit:4.12'

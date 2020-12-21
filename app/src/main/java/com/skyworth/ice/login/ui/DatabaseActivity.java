@@ -7,6 +7,7 @@ import com.skyworth.ice.login.util.BaseActivity;
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -19,6 +20,23 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 
 public class DatabaseActivity extends BaseActivity {
 
@@ -123,6 +141,8 @@ public class DatabaseActivity extends BaseActivity {
         operateFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //输出内部存储的完整路径
+                Log.d("TAG", getApplicationInfo().dataDir+"/shared_prefs");
                 //输出files目录
                 Log.d("TAG", getFilesDir().getAbsolutePath());
                 //输出cache目录
@@ -133,13 +153,26 @@ public class DatabaseActivity extends BaseActivity {
                 //输出code_cache目录
                 Log.d("TAG", getCodeCacheDir().getAbsolutePath());
                 //输出lib目录(软链接),暂无此方法
-
                 //输出外部存储的files文件夹目录
                 Log.d("TAG", getExternalFilesDir(null).getAbsolutePath());
                 Log.d("TAG", getExternalFilesDirs(null)[0].getAbsolutePath());
                 //输出外部存储的cache文件夹目录
                 Log.d("TAG", getExternalCacheDir().getAbsolutePath());
                 Log.d("TAG", getExternalCacheDirs()[0].getAbsolutePath());
+
+                //遍历shared_prefs文件夹下所有的xml文件
+                Map<String, String> map = getFilesDatas(getApplicationInfo().dataDir + "/shared_prefs");
+                for (String key :
+                        map.keySet()) {
+                    //String value = map.get(key);
+                    //Toast.makeText(DatabaseActivity.this, "文件名：" + key + " 内容：", Toast.LENGTH_SHORT).show();
+                    //Log.d("TAG", "文件名：" + key + " 内容：" + value);
+                    //key.substring(0,key.length()-4)是为了去点SP文件名后面的.xml子字符串
+                    SharedPreferences sharedPreferences = getSharedPreferences(key.substring(0,key.length()-4), MODE_PRIVATE);
+                    traversalMap(sharedPreferences.getAll());
+                    //parseXMLWithSAX(value);
+                }
+
 
             }
         });
@@ -159,6 +192,127 @@ public class DatabaseActivity extends BaseActivity {
                 startActivity(new Intent(DatabaseActivity.this, WebViewActivity.class));
             }
         });
+    }
+
+    private void traversalMap(Map<String, ?> map) {
+        Toast.makeText(this, "traversal Map:"+map.toString(), Toast.LENGTH_SHORT).show();
+        for (Map.Entry<String, ?> mapEntry:
+                map.entrySet()){
+            String key = mapEntry.getKey();
+            String value = mapEntry.getValue().toString();
+            Toast.makeText(this, "key:" + key + " value:" + value, Toast.LENGTH_SHORT).show();
+            Log.d("TAG", "key:" + key + " value:" + value);
+        }
+    }
+
+    private void parseXMLWithSAX(String xmlData) {
+        try {
+            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            XMLReader xmlReader = saxParserFactory.newSAXParser().getXMLReader();
+            ContentHandler contentHandler = new ContentHandler();
+            xmlReader.setContentHandler(contentHandler);
+            //开始执行解析
+            xmlReader.parse(new InputSource(new StringReader(xmlData)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static class ContentHandler extends DefaultHandler {
+
+        private String nodeName;
+        private StringBuilder name;
+        private StringBuilder age;
+
+        @Override
+        public void startDocument() throws SAXException {
+            name = new StringBuilder();
+            age = new StringBuilder();
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+            //记录当前节点名
+            nodeName = localName;
+        }
+
+        @Override
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            //根据当前的节点名判断将内容添加到哪一个StringBuilder对象
+            Log.d("TAG", "nodeName:" + nodeName);
+            if ("string".equals(nodeName)) {
+                name.append(ch, start, length);
+            } else if ("int".equals(nodeName)) {
+                age.append(ch, start, length);
+            }
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            if ("map".equals(localName)) {
+                Log.d("ContentHandler", "name is" + name.toString().trim());
+                Log.d("ContentHandler", "age is" + age.toString().trim());
+                //最后将StringBuilder清空掉
+                name.setLength(0);
+                age.setLength(0);
+            }
+        }
+
+        @Override
+        public void endDocument() throws SAXException {
+            super.endDocument();
+        }
+    }
+
+    /**
+     * 获取某文件夹下的文件名和文件内容,存入map集合中
+     * @param filePath 需要获取的文件的 路径
+     * @return 返回存储文件名和文件内容的map集合
+     */
+    public static Map<String, String> getFilesDatas(String filePath){
+        Map<String, String> files = new HashMap<>();
+        File file = new File(filePath); //需要获取的文件的路径
+        String[] fileNameLists = file.list(); //存储文件名的String数组
+        File[] filePathLists = file.listFiles(); //存储文件路径的String数组
+        for(int i=0;i<filePathLists.length;i++){
+            if(filePathLists[i].isFile()){
+                try {//读取指定文件路径下的文件内容
+                    String fileDatas = readFile(filePathLists[i]);
+                    //把文件名作为key,文件内容为value 存储在map中
+                    files.put(fileNameLists[i], fileDatas);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return files;
+    }
+
+    /**
+     * 读取指定目录下的文件
+     * @param path 文件的路径
+     * @return 文件内容
+     * @throws IOException
+     */
+    public static String readFile(File path) throws IOException {
+        //创建一个输入流对象
+        InputStream is = new FileInputStream(path);
+        //定义一个缓冲区
+        byte[] bytes = new byte[1024];// 1kb
+        //通过输入流使用read方法读取数据
+        int len = is.read(bytes);
+        //System.out.println("字节数:"+len);
+        String str = null;
+        while(len!=-1){
+            //把数据转换为字符串
+            str = new String(bytes, 0, len);
+            //System.out.println(str);
+            //继续进行读取
+            len = is.read(bytes);
+        }
+        //释放资源
+        is.close();
+        return str;
     }
 
     private void checkPermission(){

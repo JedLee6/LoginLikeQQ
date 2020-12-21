@@ -16,7 +16,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.WebViewActivity"></activity>
+        <activity android:name=".ui.FoldableRecyclerViewActivity"></activity>
+        <activity android:name=".ui.WebViewActivity" />
         <activity android:name=".ui.DatabaseActivity" />
         <activity android:name=".ui.AsyncTaskActivity" />
 
